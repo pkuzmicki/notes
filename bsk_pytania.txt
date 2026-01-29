@@ -1,0 +1,499 @@
+# Test z Bezpieczeństwa Aplikacji Webowych
+
+
+Wysyłasz poniższe żądanie HTTP do serwera (obrazek) za pomocą narzędzia Burp Suite, ale serwer nie zwraca żadnej odpowiedzi (status: "Waiting..."). Co jest przyczyną braku odpowiedzi serwera?
+
+- Brakuje nagłówka Content-Type
+- Metoda GET nie może zawierać nagłówka Cookie
+- **Brakuje pustej linii (CRLF) po nagłówkach - serwer czeka na zakończenie żądania**
+- Nagłówek Host powinien zawierać numer portu
+- Parametr id=15 powinien być przesłany w ciele żądania, nie w URL
+
+
+- **Brakuje pustej linii (CRLF) po nagłówkach - serwer czeka na zakończenie żądania**
+---
+
+## Pytanie 2 - XSS (Cross-Site Scripting)
+Pentester podczas testów bezpieczeństwa aplikacji webowej wpisał w pole wyszukiwarki następującą frazę: `<u>test</u>` i zaobserwował, że tekst "test" wyświetlił się podkreślony na stronie wynikowej. Co potwierdza to zachowanie aplikacji?
+
+- Aplikacja jest podatna na SQL Injection
+- Aplikacja poprawnie enkoduje dane wejściowe użytkownika
+- **W aplikacji istnieje potencjał na występowanie podatności XSS**
+- Aplikacja stosuje Content Security Policy (CSP)
+- Przeglądarka zablokowała próbę ataku XSS
+
+
+- **W aplikacji istnieje potencjał na występowanie podatności XSS**
+---
+
+## Pytanie 3 - SQL Injection - komentarz
+Aplikacja webowa zawiera następujące zapytanie SQL do uwierzytelniania użytkowników (obrazek). Atakujący wpisuje w pole username wartość: `admin'--`
+
+Jakie zapytanie zostanie wykonane przez bazę danych?
+
+- `SELECT * FROM users WHERE username = 'admin'--' AND password = '';`
+- `SELECT * FROM users WHERE username = 'admin' AND password = '';`
+- `SELECT * FROM users WHERE username = 'admin'-- AND password = '$password';`
+- **`SELECT * FROM users WHERE username = 'admin';`**
+- Zapytanie nie zostanie wykonane z powodu błędu składni
+
+---
+
+## Pytanie 4 - Błąd MySQL
+Podczas testowania aplikacji webowej, po wpisaniu znaku `'` w polu wyszukiwania, serwer zwraca komunikat (obrazek). Co można wywnioskować z tej odpowiedzi?
+
+- Aplikacja jest odporna na SQL Injection, ponieważ wykryła próbę ataku
+- **Aplikacja jest podatna na SQL Injection i używa bazy MySQL**
+- Zapora aplikacyjna (WAF) zablokowała żądanie
+- Aplikacja używa prepared statements, które odrzuciły nieprawidłowe dane
+- Serwer bazy danych jest niedostępny
+
+---
+
+## Pytanie 5 - UNION SELECT
+Atakujący chce poznać strukturę bazy danych SQLite w podatnej aplikacji. Wyszukiwarka produktów akceptuje parametr q w URL. Dlaczego atakujący użył dokładnie 9 kolumn w klauzuli SELECT?
+
+- SQLite wymaga minimum 9 kolumn w zapytaniach UNION
+- **Liczba kolumn w UNION SELECT musi być identyczna z liczbą kolumn w oryginalnym zapytaniu**
+- Wartość 9 to maksymalna liczba kolumn dozwolona w atakach UNION
+- Jest to standardowy payload SQL Injection, który działa uniwersalnie
+- Atakujący celowo zwiększył liczbę kolumn, aby uzyskać więcej danych
+
+---
+
+## Pytanie 6 - Prepared Statements
+Administrator zabezpieczył formularz logowania, zamieniając dynamiczne zapytanie na prepared statement (obrazek). Dlaczego ta zmiana skutecznie chroni przed SQL Injection?
+
+- Znak ? automatycznie filtruje znaki specjalne SQL z danych wejściowych
+- **Parametry są traktowane jako dane, nie jako część struktury zapytania SQL**
+- Prepared statements szyfrują dane przed wysłaniem do bazy danych
+- Baza danych automatycznie odrzuca zapytania zawierające znaki specjalne
+- Kod Python waliduje dane przed wykonaniem zapytania
+
+---
+
+## Pytanie 7 - Konsekwencje SQL Injection
+Administrator odkrył, że atakujący wykorzystał podatność SQL Injection w API recenzji produktów, wysyłając żądanie (obrazek). Jakie są potencjalne konsekwencje tego typu ataku?
+
+- **Kradzież danych osobowych użytkowników**
+- Atak typu Denial of Service (DoS) przez przeciążenie bazy danych
+- Wstrzyknięcie złośliwego kodu JavaScript do strony
+- **Możliwość potwierdzenia podatności na SQL Injection**
+- Bezpośrednie przejęcie uprawnień administratora
+
+---
+
+## Pytanie 8 - UNION-based SQL Injection
+Podczas ćwiczeń laboratoryjnych student testuje aplikację DVWA na różnych poziomach zabezpieczeń. Na poziomie "Low" wykonuje atak (obrazek). Które informacje może uzyskać atakujący dzięki temu atakowi?
+
+- **Nazwy użytkowników zapisane w tabeli users**
+- **Hasła użytkowników (prawdopodobnie w formie skrótów/hashy)**
+- Uprawnienia użytkowników w systemie operacyjnym
+- Klucze prywatne SSL serwera
+- **Strukturę tabeli users (nazwy kolumn user i password)**
+
+---
+
+## Pytanie 9 - Blind SQL Injection
+Pentester przeprowadza atak Blind SQL Injection na aplikację używającą MySQL. Wysyła serię payloadów i notuje czasy odpowiedzi (obrazek). Jaką nazwę bazy danych ustalił pentester na podstawie tych testów?
+
+- data
+- **dvwa**
+- test
+- dwva
+- base
+
+---
+
+## Pytanie 10 - Stored XSS
+Administrator bloga zauważył, że po dodaniu przez użytkownika komentarza o treści `Świetny artykuł!<script>alert(document.cookie)</script>` każdy odwiedzający stronę z komentarzami widzi wyskakujące okienko z zawartością ciasteczek. Jaki typ podatności XSS został wykorzystany w tym scenariuszu?
+
+- Reflected XSS - kod jest odbijany w odpowiedzi serwera
+- DOM-based XSS - kod manipuluje Document Object Model
+- **Stored XSS - złośliwy kod został zapisany w bazie danych**
+- Self-XSS - użytkownik atakuje sam siebie
+- Blind XSS - atakujący nie widzi bezpośrednio wyniku ataku
+
+---
+
+## Pytanie 11 - Ochrona przed XSS
+Zespół programistów przygotowuje zabezpieczenia przed atakami XSS w nowej aplikacji webowej. Które z poniższych metod są skutecznymi sposobami ochrony przed XSS?
+
+- **Używanie bibliotek typu sanitizer (np. DOMPurify) do czyszczenia HTML**
+- **Stosowanie nagłówka Content-Security-Policy (CSP)**
+- Wycinanie tagów HTML za pomocą wyrażenia regularnego `<.*>`
+- **Enkodowanie danych w sposób odpowiedni dla kontekstu ich użycia**
+- Blokowanie wszystkich żądań zawierających słowo "script"
+
+---
+
+## Pytanie 12 - XSS w atrybucie href
+Aplikacja webowa pozwala użytkownikom na dodawanie linków do swoich profili. Programista zastosował enkodowanie encji HTML dla wartości atrybutu href (obrazek). Które z poniższych stwierdzeń są prawdziwe?
+
+- Enkodowanie encji HTML w pełni chroni przed XSS w tym kontekście
+- **Użytkownik może wykonać XSS poprzez podanie URL `javascript:alert(1)`**
+- Atrybut href nie może być wykorzystany do wykonania kodu JavaScript
+- **Należy dodatkowo walidować, czy protokół URL to HTTP lub HTTPS**
+- Przeglądarka automatycznie blokuje wszystkie protokoły oprócz HTTP/HTTPS
+
+---
+
+## Pytanie 13 - XSS przez upload plików
+Podczas audytu bezpieczeństwa analizujesz aplikację, która pozwala użytkownikom na upload plików, które następnie są serwowane z tej samej domeny co główna aplikacja (https://example.com/uploads/). Które z poniższych formatów plików mogą umożliwić wykonanie ataku XSS?
+
+- **Plik HTML (.html) zawierający tag `<script>`**
+- Plik tekstowy (.txt) zawierający kod JavaScript
+- **Plik SVG (.svg) zawierający element `<script>` wewnątrz XML**
+- **Plik XML z atrybutem xmlns wskazującym na namespace XHTML**
+- Plik JSON (.json) zawierający pole ze złośliwym kodem
+
+---
+
+## Pytanie 14 - XSS bez tagu script
+W aplikacji DVWA na poziomie zabezpieczeń HIGH tag `<script>` jest całkowicie blokowany przez filtr. Pentester próbuje wykonać atak XSS (obrazek). Dlaczego ten payload działa mimo zablokowania tagu `<script>`?
+
+- Tag `<img>` jest automatycznie konwertowany na `<script>` przez przeglądarkę
+- Atrybut onerror wykonuje JavaScript gdy obrazek nie może zostać załadowany
+- Przeglądarka ignoruje filtr XSS dla tagów obrazków
+- Kod JavaScript w atrybutach HTML nie wymaga tagu `<script>`
+- **Odpowiedzi B i D są poprawne**
+
+---
+
+## Pytanie 15 - XSS w React
+Programista używa frameworka React do budowania aplikacji webowej. W kodzie znajdują się następujące fragmenty (obrazek). Które stwierdzenia dotyczące bezpieczeństwa tych fragmentów są prawdziwe?
+
+- Fragment 1 jest podatny na XSS, ponieważ nie ma enkodowania
+- **Fragment 1 jest bezpieczny - React automatycznie enkoduje dane w klamrach**
+- **Fragment 2 może być podatny na XSS jeśli user.bio pochodzi od użytkownika**
+- Fragment 2 jest bezpieczny - React automatycznie sanityzuje dangerouslySetInnerHTML
+- Oba fragmenty są równie bezpieczne dzięki wbudowanym zabezpieczeniom React
+
+---
+
+## Pytanie 16 - Certificate Authority
+Co oznacza skrót "CA" w kontekście certyfikatów TLS?
+
+- Computer Algorithm - algorytm komputerowy
+- **Certificate Authority - urząd certyfikacji, który wystawia certyfikaty**
+- Cyber Attack - rodzaj ataku sieciowego
+- Connection Accepted - potwierdzenie połączenia
+- Cached Address - adres zapisany w pamięci podręcznej
+
+---
+
+## Pytanie 17 - SNI (Server Name Indication)
+Administrator chce pobrać certyfikat SSL strony example.com za pomocą OpenSSL (obrazek). Serwer hostuje wiele domen na jednym adresie IP. Jakie ryzyko niesie użycie poniższego polecenia bez dodatkowych flag?
+
+- Certyfikat nie zostanie zapisany do pliku
+- **Serwer może zwrócić certyfikat dla innej domeny niż oczekiwana**
+- Połączenie nie zostanie nawiązane z powodu błędu SSL
+- Certyfikat zostanie pobrany w formacie binarnym DER zamiast PEM
+- OpenSSL automatycznie wybierze najnowszy certyfikat z łańcucha
+
+---
+
+## Pytanie 18 - Analiza certyfikatu
+Podczas analizy certyfikatu za pomocą polecenia `openssl x509 -in cert.pem -text -noout` zauważono następujące wartości (rysunek). Co można jednoznacznie stwierdzić na podstawie tych informacji?
+
+- Certyfikat jest zaufany przez wszystkie przeglądarki
+- **Certyfikat jest typu self-signed**
+- Certyfikat wygasł
+- Certyfikat został wystawiony przez Let's Encrypt
+- Certyfikat obsługuje wiele domen (wildcard)
+
+---
+
+## Pytanie 19 - Deszyfrowanie TLS z ECDHE
+Analityk bezpieczeństwa przechwycił ruch TLS i posiada poprawny klucz prywatny serwera. Po dodaniu klucza do Wiresharka (Edit → Preferences → Protocols → TLS → RSA keys list) ruch nadal pozostaje zaszyfrowany. Która z poniższych przyczyn jest najbardziej prawdopodobna?
+
+- Klucz prywatny jest w złym formacie (DER zamiast PEM)
+- **Połączenie używa cipher suite z ECDHE (np. TLS_ECDHE_RSA_WITH_AES_128_GCM)**
+- Certyfikat serwera wygasł podczas przechwytywania
+- Wireshark nie obsługuje TLS w wersji 1.2
+- Plik pcap został uszkodzony podczas zapisu
+
+---
+
+## Pytanie 20 - Subject Alternative Name (SAN)
+W certyfikacie X.509 znaleziono następujące rozszerzenie (rysunek). Jakie jest praktyczne znaczenie tego rozszerzenia?
+
+- Określa listę serwerów DNS, które mogą weryfikować certyfikat
+- Wskazuje alternatywne adresy IP, pod którymi dostępny jest serwer
+- **Pozwala jednemu certyfikatowi chronić wiele różnych domen**
+- Definiuje listę zaufanych Certificate Authority
+- Określa dozwolone algorytmy szyfrowania dla tych domen
+
+---
+
+## Pytanie 21 - Deszyfrowanie TLS w Wireshark
+W kontekście deszyfrowania ruchu TLS w programie Wireshark, które z poniższych stwierdzeń są prawdziwe?
+
+- **Metoda SSLKEYLOGFILE działa dla połączeń używających ECDHE**
+- Klucz prywatny serwera zawsze wystarcza do odszyfrowania każdej sesji TLS
+- **Forward Secrecy uniemożliwia odszyfrowanie ruchu przy użyciu samego klucza prywatnego serwera**
+- **SSLKEYLOGFILE musi być ustawiony przed nawiązaniem połączenia TLS**
+- Deszyfrowanie przy użyciu klucza prywatnego działa dla wszystkich wersji TLS
+
+---
+
+## Pytanie 22 - Błąd certyfikatu
+Rozważmy następujący scenariusz: przeglądarka wyświetla ostrzeżenie "NET::ERR_CERT_AUTHORITY_INVALID" podczas próby połączenia z serwerem HTTPS. Które z poniższych sytuacji mogą być przyczyną tego błędu?
+
+- **Certyfikat serwera jest typu self-signed i nie znajduje się w trusted store przeglądarki**
+- Serwer używa protokołu HTTP zamiast HTTPS
+- **Certyfikat został wystawiony przez CA, którego przeglądarka nie zna (brak w trusted store)**
+- Połączenie sieciowe jest zbyt wolne
+- Serwer używa zbyt silnego algorytmu szyfrowania
+
+---
+
+## Pytanie 23 - Co szyfruje TLS
+Użytkownik łączy się z bankiem przez HTTPS i wysyła żądanie HTTP zawierające dane przelewu. Co z poniższych jest szyfrowane przez TLS i niewidoczne dla atakującego podsłuchującego ruch sieciowy?
+
+- Ścieżka URL (np. /api/transfer)
+- Nagłówki HTTP (np. Cookie, Authorization)
+- Treść żądania (np. JSON z danymi przelewu)
+- Metoda HTTP (np. POST, GET)
+- **Wszystkie przytoczone**
+
+---
+
+## Pytanie 24 - HTTP Redirect
+Serwer HTTP zwrócił następującą odpowiedź (obrazek). Co powinien zrobić klient (przeglądarka) po otrzymaniu tej odpowiedzi?
+
+- Wyświetlić komunikat o błędzie serwera
+- Ponowić żądanie z metodą POST
+- **Wykonać przekierowanie na adres podany w nagłówku Location**
+- Zignorować odpowiedź, ponieważ Content-Length wynosi 0
+- Wyświetlić stronę z pamięci podręcznej (cache)
+
+---
+
+## Pytanie 25 - Burp Suite Intruder
+W narzędziu Burp Suite Intruder chcesz przeprowadzić atak bruteforce na formularz logowania, testując wszystkie kombinacje loginów (100 wartości) i haseł (500 wartości). Który typ ataku powinieneś wybrać?
+
+- Sniper - testuje jeden parametr na raz z jednej listy
+- Battering ram - wstawia tę samą wartość we wszystkie pozycje
+- Pitchfork - testuje wartości równolegle z wielu list (para po parze)
+- **Cluster bomb - testuje wszystkie kombinacje wartości z wielu list**
+- Fuzzer - generuje losowe wartości dla wszystkich parametrów
+
+---
+
+## Pytanie 26 - Base64 Manipulation
+Po zdekodowaniu wartości `dXNlcg==` (Base64) otrzymujesz tekst `user`. Jaką technikę ataku możesz zastosować, aby uzyskać uprawnienia administratora?
+
+- SQL Injection w wartości ciasteczka
+- **Zmiana wartości na admin zakodowane w Base64 (YWRtaW4=) i wysłanie zmodyfikowanego żądania**
+- Usunięcie ciasteczka z żądania
+- Dodanie drugiego ciasteczka o nazwie admin_role
+- Zmiana kodowania z Base64 na URL encoding
+
+Na podstawie dokumentu, oto poprawne odpowiedzi:
+
+## Pytanie 1 - Brak odpowiedzi serwera HTTP
+✅ **Brakuje pustej linii (CRLF) po nagłówkach - serwer czeka na zakończenie żądania**
+
+## Pytanie 2 - XSS
+✅ **W aplikacji istnieje potencjał na występowanie podatności XSS**
+
+## Pytanie 3 - SQL Injection komentarz
+✅ **SELECT * FROM users WHERE username = 'admin';**
+
+## Pytanie 4 - Błąd MySQL
+✅ **Aplikacja jest podatna na SQL Injection i używa bazy MySQL**
+
+## Pytanie 5 - UNION SELECT
+✅ **Liczba kolumn w UNION SELECT musi być identyczna z liczbą kolumn w oryginalnym zapytaniu**
+
+## Pytanie 6 - Prepared Statements
+✅ **Parametry są traktowane jako dane, nie jako część struktury zapytania SQL**
+
+## Pytanie 7 - Konsekwencje SQL Injection (wiele odpowiedzi)
+✅ **Kradzież danych osobowych użytkowników**
+✅ **Możliwość potwierdzenia podatności na SQL Injection**
+
+## Pytanie 8 - UNION-based SQL Injection (wiele odpowiedzi)
+✅ **Nazwy użytkowników zapisane w tabeli users**
+✅ **Hasła użytkowników (prawdopodobnie w formie skrótów/hashy)**
+✅ **Strukturę tabeli users (nazwy kolumn user i password)**
+
+## Pytanie 9 - Blind SQL Injection
+✅ **dvwa**
+
+## Pytanie 10 - Typy XSS
+✅ **Stored XSS - złośliwy kod został zapisany w bazie danych**
+
+## Pytanie 11 - Ochrona przed XSS (wiele odpowiedzi)
+✅ **Używanie bibliotek typu sanitizer (np. DOMPurify) do czyszczenia HTML**
+✅ **Stosowanie nagłówka Content-Security-Policy (CSP)**
+✅ **Enkodowanie danych w sposób odpowiedni dla kontekstu ich użycia**
+
+## Pytanie 12 - XSS w href (wiele odpowiedzi)
+✅ **Użytkownik może wykonać XSS poprzez podanie URL javascript:alert(1)**
+✅ **Należy dodatkowo walidować, czy protokół URL to HTTP lub HTTPS**
+
+## Pytanie 13 - XSS przez upload (wiele odpowiedzi)
+✅ **Plik HTML (.html) zawierający tag <script>**
+✅ **Plik SVG (.svg) zawierający element <script> wewnątrz XML**
+✅ **Plik XML z atrybutem xmlns wskazującym na namespace XHTML**
+
+## Pytanie 14 - XSS bez script
+✅ **Odpowiedzi B i D są poprawne** (onerror + JS w atrybutach HTML)
+
+## Pytanie 15 - XSS w React (wiele odpowiedzi)
+✅ **Fragment 1 jest bezpieczny - React automatycznie enkoduje dane w klamrach**
+✅ **Fragment 2 może być podatny na XSS jeśli user.bio pochodzi od użytkownika**
+
+## Pytanie 16 - CA
+✅ **Certificate Authority - urząd certyfikacji, który wystawia certyfikaty**
+
+## Pytanie 17 - SNI
+✅ **Serwer może zwrócić certyfikat dla innej domeny niż oczekiwana**
+
+## Pytanie 18 - Self-signed
+✅ **Certyfikat jest typu self-signed**
+
+## Pytanie 19 - ECDHE
+✅ **Połączenie używa cipher suite z ECDHE (np. TLS_ECDHE_RSA_WITH_AES_128_GCM)**
+
+## Pytanie 20 - SAN
+✅ **Pozwala jednemu certyfikatowi chronić wiele różnych domen**
+
+## Pytanie 21 - Deszyfrowanie TLS (wiele odpowiedzi)
+✅ **Metoda SSLKEYLOGFILE działa dla połączeń używających ECDHE**
+✅ **Forward Secrecy uniemożliwia odszyfrowanie ruchu przy użyciu samego klucza prywatnego serwera**
+✅ **SSLKEYLOGFILE musi być ustawiony przed nawiązaniem połączenia TLS**
+
+## Pytanie 22 - Błąd certyfikatu (wiele odpowiedzi)
+✅ **Certyfikat serwera jest typu self-signed i nie znajduje się w trusted store przeglądarki**
+✅ **Certyfikat został wystawiony przez CA, którego przeglądarka nie zna (brak w trusted store)**
+
+## Pytanie 23 - Co szyfruje TLS
+✅ **Wszystkie przytoczone** (ścieżka URL, nagłówki, treść, metoda)
+
+## Pytanie 24 - HTTP Redirect
+✅ **Wykonać przekierowanie na adres podany w nagłówku Location**
+
+## Pytanie 25 - Burp Intruder
+✅ **Cluster bomb - testuje wszystkie kombinacje wartości z wielu list**
+
+## Pytanie 26 - Base64
+✅ **Zmiana wartości na admin zakodowane w Base64 (YWRtaW4=) i wysłanie zmodyfikowanego żądania**
+
+
+# Dodatkowe pytania z przesłanych zdjęć
+
+## Pytanie - Rozważne następujące żądanie HTTP
+POST /search HTTP/1.1
+Host: example.com
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 23
+
+query=test&category=all
+
+Które stwierdzenia są prawdziwe?
+
+✅ **Parametry 'query' i 'category' są przesyłane w ciele żądania**
+✅ **Nagłówek Content-Length musi dokładnie odpowiadać długości ciała w bajtach**
+
+---
+
+## Pytanie - Time-Based Blind SQL Injection
+Podczas ataku Time-Based Blind SQL Injection atakujący wysyła następujący payload (obrazek). Odpowiedź serwera przychodzi po 5 sekundach. Co atakujący może wywnioskować z tego zachowania?
+
+`1' AND IF(SUBSTRING(database(),1,1)='d', SLEEP(5), 0)#`
+
+✅ **Pierwsza litera nazwy bazy danych to 'd'**
+
+---
+
+## Pytanie - Metoda HTTP OPTIONS
+Podczas testu penetracyjnego aplikacji webowej chcesz sprawdzić, jakie metody HTTP są dozwolone dla zasobu `/api/data`. Którą metodę HTTP powinieneś użyć?
+
+✅ **OPTIONS**
+
+---
+
+## Pytanie - Analiza żądania HTTP w Burp Suite
+Analizujesz żądanie HTTP przechwycone przez Burp Suite (obrazek). Które stwierdzenia dotyczące tego żądania są prawdziwe?
+
+✅ **Żądanie zawiera 3 oddzielne ciasteczka przesłane w jednym nagłówku Cookie**
+✅ **Nagłówek User-Agent wskazuje, że żądanie pochodzi z systemu Windows**
+✅ **Ciasteczko 'role=user' może być potencjalnym wektorem ataku na eskalację uprawnień**
+
+---
+
+## Pytanie - Konsekwencje SQL Injection w API
+Administrator odkrył, że atakujący wykorzystał podatność SQL Injection w API recenzji produktów, wysyłając żądanie (obrazek). Jakie są potencjalne konsekwencje tego typu ataku?
+
+✅ **Atak typu Denial of Service (DoS) przez przeciążenie bazy danych**
+✅ **Możliwość potwierdzenia podatności na SQL Injection**
+
+---
+
+## Pytanie - XSS bypass w DVWA MEDIUM
+W aplikacji DVWA na poziomie zabezpieczeń MEDIUM próba ataku XSS za pomocą `<script>alert('XSS')</script>` nie działa, ponieważ słowo 'script' jest usuwane z danych wejściowych. Który z poniższych payloadów pozwoli na obejście tego zabezpieczenia?
+
+✅ **`<SCRIPT>alert('XSS')</SCRIPT>` - zmiana wielkości liter**
+
+---
+
+## Pytanie - XSS przez onerror
+Aplikacja webowa generuje dynamicznie kod HTML na podstawie parametru URL. Programista zastosował enkodowanie encji HTML dla wartości atrybutu src (obrazek). Które z poniższych stwierdzeń są prawdziwe?
+
+✅ **Atak XSS jest możliwy poprzez użycie spacji i dodanie atrybutu 'onerror'**
+✅ **Brak cudzysłowów wokół wartości atrybutu src stanowi lukę bezpieczeństwa**
+
+---
+
+## Pytanie - OpenSSL polecenia
+Administrator systemu chce wyodrębnić informacje z certyfikatu TLS. Które z poniższych poleceń OpenSSL poprawnie wyświetlą żądane informacje?
+
+✅ **`openssl x509 -in cert.pem -noout -dates` - wyświetla daty ważności certyfikatu**
+✅ **`openssl x509 -in cert.pem -noout -issuer` - wyświetla informację o wystawcy (CA)**
+
+---
+
+## Pytanie - URL encoding
+Chcesz przesłać w parametrze URL następujący tekst: `name=Jan Kowalski&age=25`. Które z poniższych zakodowanych wartości są poprawne dla kodowania procentowego (URL encoding)?
+
+✅ **`name=Jan+Kowalski%26age=25`**
+✅ **`name=Jan%20Kowalski%26age%3D3025`**
+
+---
+
+## Pytanie - Domyślny port HTTPS
+Jaki jest domyślny port dla połączeń HTTPS?
+
+✅ **443**
+
+---
+
+## Pytanie - Tester bezpieczeństwa analizuje SQL Injection
+Tester bezpieczeństwa analizuje podatność SQL Injection w aplikacji. W polu formularza wpisuje różne payloady i obserwuje reakcje. Które z poniższych zachowań aplikacji wskazują na podatność SQL Injection?
+
+✅ **Wyświetlenie komunikatu "Błąd składni SQL" po wpisaniu znaku apostrofu**
+✅ **Wyświetlenie dodatkowych rekordów z bazy po wpisaniu `' OR '1'='1`**
+
+---
+
+## Pytanie - XSS w wyszukiwarce
+Pentester podczas testów bezpieczeństwa aplikacji webowej wpisał w pole wyszukiwarki następującą frazę: `<u>test</u>` i zaobserwował, że tekst "test" wyświetlił się podkreślony na stronie wynikowej. Co potwierdza to zachowanie aplikacji?
+
+✅ **W aplikacji istnieje potencjał na występowanie podatności XSS**
+
+---
+
+## Pytanie - UNION SELECT i liczba kolumn
+Atakujący chce poznać strukturę bazy danych SQLite w podatnej aplikacji. Wyszukiwarka produktów akceptuje parametr 'q' w URL. Dlaczego atakujący użył dokładnie 9 kolumn w klauzuli SELECT?
+
+✅ **Liczba kolumn w UNION SELECT musi być identyczna z liczbą kolumn w oryginalnym zapytaniu**
+
+
+
+dolaczony 
+formularz rezygnacyjny
+bok@plus.pl
+rezygnuje z 14 
