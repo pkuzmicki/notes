@@ -1,0 +1,67 @@
+zad1a https://emn178.github.io/online-tools/sha384.html
+echo -n "integrity" | openssl dgst -sha384 -binary | base64
+echo -n "integrity" | openssl dgst -sha384 -binary | base64 > wynik.txt
+curl -X POST http://SERWER/zadanie -F "file=@wynik.txt"
+
+zad1b
+echo -n "softwarecompositionanalysis" | openssl dgst -sha256 -binary | base64
+
+zad2
+openssl ecparam -genkey -name secp521r1 -noout | openssl ec -pubout -out pub.pem
+openssl ecparam -genkey -name secp521r1 -noout > priv.pem
+openssl ecparam -genkey -name secp521r1 -noout -out priv.pem
+openssl ec -pubout -out pub.pem -in priv.pem
+curl -X POST http://SERWER/zadanie -F "file=@pub.pem"
+
+v2
+openssl genpkey -algorithm ed25519 -out priv.pem
+openssl pkey -in priv.pem -pubout -out pub.pem
+
+zad3
+echo -n "mors" | openssl pkeyutl -encrypt -pubin -inkey pub3.pem -pkeyopt rsa_padding_mode:oaep | base64
+cat out3.txt | base64 -d | openssl pkeyutl -decrypt -inkey priv3.pem -pkeyopt rsa_padding_mode:oaep
+curl -X POST http://SERWER/zadanie -F "file=@wynik.txt"
+
+v2
+echo -n "cipher" | openssl pkeyutl -encrypt -pubin -inkey pub3_2.pem -pkeyopt rsa_padding_mode:oaep | base64 > out3_2.txt
+cat out3_2.txt | base64 -d | openssl pkeyutl -decrypt -inkey priv3_2.pem -pkeyopt rsa_padding_mode:oaep
+
+zad4a
+echo -n "mors" | openssl enc -aes-256-cfb -K 5d1105879716b52d910441abd2072131778415589d5f49520232733b3f56c4a1 -iv 19374b8e782a82577f465637898cb7a9 -nosalt | base64
+echo "CLbP2Q==" | base64 -d | openssl enc -aes-256-cfb -d -K 5d1105879716b52d910441abd2072131778415589d5f49520232733b3f56c4a1 -iv 19374b8e782a82577f465637898cb7a9 -nosalt
+curl -X POST http://SERWER/zadanie -F "file=@wynik.txt"
+
+zad4b
+echo -n mors | openssl enc -camellia-128-cbc -K c7f2d9957f89f4d64102604a243d9192 -iv cb3f8f98579f44a34eb7919cd4fb1471 -nosalt | base64
+
+zad5a https://md5decrypt.net/en/Sha1/
+./hashcat.exe -m 100 -a 3 hash.txt ?d?d?d?d?d?d
+./hashcat.exe -m 0 --show hash.txt
+
+crunch <min_długość> <max_długość> <znaki> -o plik.txt
+-m 0 = MD5, 100 = SHA1, 1400 = SHA256, 1800 = SHA512
+-a 3 = bruteforce (?d = cyfra, ?l = mała litera, ?u = duża litera, ?s = znaki specjalne)
+
+zad5b
+./hashcat.exe -m 0 -a 03 hash.txt ?d?d?d?d?d?d
+./hashcat.exe -m 0 --show hash.txt
+
+zad6
+gpg --export --armor test1@mail.com > zad6.pem
+gpg --detach-sign --armor -o podpis.sig plik_do_podpisania.txt //plik trzeba stworzyc
+tu sie zaczyna zadanie
+gpg --verify podpis.sig podpisany_plik.txt
+
+# 1. Import klucza
+gpg --import klucz_publiczny.gpg
+
+gpg --fingerprint
+
+# 2. Weryfikacja + odczytanie słowa
+gpg --verify podpisany_plik
+
+# 3. Odczytanie słowa z pliku
+gpg --output - --decrypt podpisany_plik
+
+# 4. Fingerprint
+gpg --list-keys --with-colons | grep fpr | head -1 | cut -d: -f10
